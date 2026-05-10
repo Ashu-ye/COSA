@@ -1,0 +1,238 @@
+
+<h2 class="sr-only">COSA CDAC MCQ Practice Quiz – Windows and Linux OS Administration</h2>
+<style>
+  .quiz-wrap { padding: 1rem 0; font-size: 15px; }
+  .quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 8px; }
+  .quiz-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .quiz-meta { font-size: 13px; color: var(--color-text-secondary); }
+  .progress-bar { width: 100%; height: 4px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 1.5rem; }
+  .progress-fill { height: 100%; border-radius: 2px; background: #185FA5; transition: width 0.4s ease; }
+  .topic-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab-btn { padding: 5px 14px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: 20px; cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab-btn.active { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .tab-btn:hover:not(.active) { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .q-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .q-number { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .q-text { font-size: 15px; color: var(--color-text-primary); font-weight: 500; line-height: 1.6; margin-bottom: 1rem; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; text-align: left; transition: all 0.15s; line-height: 1.5; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
+  .opt-btn.correct { border-color: #3B6D11; background: #EAF3DE; color: #3B6D11; }
+  .opt-btn.wrong { border-color: #A32D2D; background: #FCEBEB; color: #A32D2D; }
+  .opt-btn.reveal-correct { border-color: #3B6D11; background: #EAF3DE; color: #3B6D11; }
+  .opt-label { font-weight: 500; min-width: 20px; }
+  .explanation { margin-top: 10px; padding: 10px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-secondary); border-left: 3px solid #185FA5; display: none; }
+  .explanation.show { display: block; }
+  .nav-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; flex-wrap: wrap; gap: 10px; }
+  .nav-btn { padding: 8px 20px; font-size: 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-primary); }
+  .nav-btn:hover { background: var(--color-background-secondary); }
+  .nav-btn.primary { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .nav-btn.primary:hover { background: #0C447C; }
+  .score-board { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center; }
+  .score-big { font-size: 48px; font-weight: 500; color: #185FA5; }
+  .score-label { font-size: 15px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .stats-row { display: flex; justify-content: center; gap: 24px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 500; }
+  .stat-lbl { font-size: 12px; color: var(--color-text-secondary); }
+  .correct-num { color: #3B6D11; }
+  .wrong-num { color: #A32D2D; }
+  .q-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--color-background-secondary); color: var(--color-text-secondary); margin-bottom: 8px; }
+</style>
+
+<div class="quiz-wrap">
+  <div class="quiz-header">
+    <div>
+      <div class="quiz-title">COSA Practice MCQs</div>
+      <div class="quiz-meta">CDAC PGCP-ITISS | Windows & Linux Administration</div>
+    </div>
+    <div id="score-display" style="font-size:14px;color:var(--color-text-secondary);"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <div class="topic-tabs" id="topic-tabs"></div>
+  <div id="quiz-area"></div>
+  <div class="nav-bar" id="nav-bar" style="display:none">
+    <button class="nav-btn" id="prev-btn" onclick="navigate(-1)"><i class="ti ti-arrow-left" aria-hidden="true"></i> Previous</button>
+    <span id="q-counter" style="font-size:14px;color:var(--color-text-secondary);"></span>
+    <button class="nav-btn primary" id="next-btn" onclick="navigate(1)">Next <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+  </div>
+</div>
+
+<script>
+const allQuestions = [
+  { topic:"Windows Basics", q:"Which Windows component provides the interface between user applications and hardware?", opts:["HAL","Kernel","Shell","Win32 Subsystem"], ans:0, exp:"HAL (Hardware Abstraction Layer) abstracts hardware differences from the OS, allowing Windows to run on different hardware platforms." },
+  { topic:"Windows Basics", q:"In Windows OS architecture, device drivers run in which mode?", opts:["User mode","Kernel mode","Protected mode","Ring 3"], ans:1, exp:"Device drivers run in Kernel mode, which has unrestricted access to hardware. User mode applications run with restricted access." },
+  { topic:"Windows Basics", q:"Which Windows Server edition supports unlimited virtual machines?", opts:["Standard","Essentials","Datacenter","Foundation"], ans:2, exp:"Windows Server Datacenter edition supports unlimited VMs, while Standard edition supports only 2 VMs." },
+  { topic:"Windows Basics", q:"What is the primary difference between an in-place upgrade and migration?", opts:["In-place preserves data; migration does not","Migration moves roles to a new server; in-place upgrades same OS","In-place creates a new partition","Migration is faster"], ans:1, exp:"Migration involves moving server roles and features to a new server running a new OS version, while in-place upgrade upgrades the existing OS on the same hardware." },
+  { topic:"Windows Basics", q:"Which tool is used to generalize a Windows image before capturing for deployment?", opts:["DISM","WDS","Sysprep","ImageX"], ans:2, exp:"Sysprep generalizes a Windows installation by removing machine-specific information (SID, computer name) before image capture." },
+
+  { topic:"Backup & WSB", q:"Which backup type backs up ALL selected data regardless of previous backups?", opts:["Incremental","Differential","Full","System State"], ans:2, exp:"Full backup copies all selected data every time and clears the archive bit. It's the most complete but most time-consuming." },
+  { topic:"Backup & WSB", q:"Which backup type requires the last full backup PLUS all subsequent incrementals to restore?", opts:["Full","Differential","Incremental","Mirror"], ans:2, exp:"Incremental backup only backs up data changed since the LAST BACKUP (any type). Restoration requires the last full + every incremental in sequence." },
+  { topic:"Backup & WSB", q:"What does a System State backup include on a Domain Controller?", opts:["Only user files","Active Directory database, SYSVOL, Registry, Boot files","Only the Registry","Only SYSVOL folder"], ans:1, exp:"System State on a DC includes: Active Directory (NTDS.DIT), SYSVOL, Registry, COM+ database, Boot files. Essential for AD recovery." },
+  { topic:"Backup & WSB", q:"Which backup type backs up data changed since the last FULL backup only?", opts:["Incremental","Differential","System State","VSS"], ans:1, exp:"Differential backup copies all data changed since the last FULL backup. Restore needs only the last full + last differential, unlike incremental." },
+  { topic:"Backup & WSB", q:"What command-line tool is used to manage Windows Server Backup from scripts?", opts:["bcdedit","wbadmin","ntdsutil","robocopy"], ans:1, exp:"Wbadmin.exe is the command-line interface for Windows Server Backup, allowing scripted and scheduled backup operations." },
+
+  { topic:"Active Directory", q:"Which AD component stores a partial copy of all objects in a forest for quick queries?", opts:["Domain Controller","RODC","Global Catalog","Schema Master"], ans:2, exp:"Global Catalog (GC) stores a full replica of objects in its host domain and a partial replica of all other objects in the forest. Used for universal group membership and cross-domain searches." },
+  { topic:"Active Directory", q:"What is the correct AGDLP strategy in Active Directory?", opts:["Accounts → Global → Domain Local → Permissions","Accounts → Domain Local → Global → Permissions","Global → Accounts → Permissions → Domain Local","Permissions → Global → Domain Local → Accounts"], ans:0, exp:"AGDLP: Put user Accounts into Global groups, put Global groups into Domain Local groups, then assign Permissions to Domain Local groups. This is best practice for AD access management." },
+  { topic:"Active Directory", q:"Which FSMO role is responsible for maintaining the AD schema?", opts:["PDC Emulator","RID Master","Infrastructure Master","Schema Master"], ans:3, exp:"The Schema Master FSMO role controls all updates and modifications to the Active Directory schema. There is only one Schema Master per forest." },
+  { topic:"Active Directory", q:"What type of group can contain members from any domain in the forest and is stored in the Global Catalog?", opts:["Domain Local","Global","Universal","Distribution"], ans:2, exp:"Universal groups can contain users and groups from any domain in the forest. They are stored in the Global Catalog and replicated forest-wide." },
+  { topic:"Active Directory", q:"An RODC (Read-Only Domain Controller) is typically deployed in which scenario?", opts:["Data center core","Remote/branch offices","Primary domain","DMZ zone only"], ans:1, exp:"RODC is designed for remote branch offices where physical security cannot be guaranteed. It holds a read-only copy of AD and does not replicate changes back to main DCs." },
+
+  { topic:"DNS & DHCP", q:"Which DNS record type is used by Active Directory clients to locate a Domain Controller?", opts:["A record","MX record","SRV record","CNAME record"], ans:2, exp:"SRV (Service Location) records allow AD clients to find Domain Controllers. DCs register themselves with SRV records in DNS during startup." },
+  { topic:"DNS & DHCP", q:"What is the correct order of the DHCP process?", opts:["Offer, Discover, Request, Acknowledge","Discover, Offer, Request, Acknowledge","Discover, Request, Offer, Acknowledge","Request, Discover, Offer, Acknowledge"], ans:1, exp:"DORA: Discover (client broadcast) → Offer (server responds) → Request (client requests specific IP) → Acknowledge (server confirms)." },
+  { topic:"DNS & DHCP", q:"What is a Rogue DHCP attack?", opts:["Flooding DHCP with fake requests","Unauthorized DHCP server assigning wrong IP configuration","DNS poisoning via DHCP","Port scanning DHCP ports"], ans:1, exp:"A Rogue DHCP attack occurs when an unauthorized DHCP server responds to clients, assigning incorrect gateway or DNS, enabling Man-in-the-Middle attacks." },
+  { topic:"DNS & DHCP", q:"Which DNS zone type stores zone data in Active Directory and supports multi-master replication?", opts:["Primary Zone","Secondary Zone","Stub Zone","AD-Integrated Zone"], ans:3, exp:"AD-Integrated zones store DNS data in Active Directory, enabling secure dynamic updates and multi-master replication between all DCs." },
+  { topic:"DNS & DHCP", q:"What DNS response is considered 'authoritative'?", opts:["From a cache","From a forwarder","From the DNS server holding the actual zone data","From a secondary zone"], ans:2, exp:"An authoritative response comes directly from the DNS server that holds the actual zone data. Non-authoritative responses come from cached data." },
+
+  { topic:"GPO & Policies", q:"In what order are Group Policy Objects applied? (Lowest to highest priority)", opts:["Site → Domain → OU → Local","Local → Domain → Site → OU","Local → Site → Domain → OU","OU → Domain → Site → Local"], ans:2, exp:"LSDOU: Local → Site → Domain → OU. Higher in the list = lower priority. OU policy (applied last) has highest priority and overrides previous policies." },
+  { topic:"GPO & Policies", q:"Which GPO setting prevents child OUs from overriding a parent GPO?", opts:["Block Inheritance","Loopback Processing","Enforcement (No Override)","WMI Filter"], ans:2, exp:"Enforcement (formerly 'No Override') prevents child containers from blocking or overriding the enforced GPO. It overrides Block Inheritance settings." },
+  { topic:"GPO & Policies", q:"A GPO linked to the Domain level affects which of the following?", opts:["Only the Domain Controllers OU","All users and computers in the domain","Only the site","Only OUs with no GPO linked"], ans:1, exp:"A GPO linked at the Domain level applies to all users and computers within that domain, subject to filtering and inheritance settings." },
+  { topic:"GPO & Policies", q:"What does the 'Block Inheritance' GPO option do?", opts:["Prevents all GPOs from applying","Prevents parent container GPOs from flowing down to child OU","Blocks enforcement from child OUs","Makes GPO apply only to specific users"], ans:1, exp:"Block Inheritance prevents Group Policy settings from parent containers (Site, Domain) from being inherited by the child OU. However, it cannot block Enforced GPOs." },
+
+  { topic:"Windows Services", q:"Which VPN protocol uses SSL/TLS on port 443 and is most firewall-friendly?", opts:["PPTP","L2TP/IPSec","SSTP","IKEv2"], ans:2, exp:"SSTP (Secure Socket Tunneling Protocol) uses HTTPS (port 443) which passes through most firewalls and NAT devices easily." },
+  { topic:"Windows Services", q:"What is the key advantage of DirectAccess over traditional VPN?", opts:["Requires no server","Works on any OS","Automatically connects without user action","Cheaper to implement"], ans:2, exp:"DirectAccess provides automatic, seamless connectivity – the client connects to the corporate network automatically whenever online, without user initiation." },
+  { topic:"Windows Services", q:"Which IIS security setting prevents listing of files in a web directory?", opts:["Request Filtering","Options -Indexes / Disable Directory Browsing","SSL Binding","Application Pool Isolation"], ans:1, exp:"Disabling Directory Browsing (or Options -Indexes in Apache equivalent) prevents users from seeing a list of files when no default document exists." },
+  { topic:"Windows Services", q:"What is the purpose of an Application Pool in IIS?", opts:["Store web application logs","Isolate web applications in separate worker processes","Manage SSL certificates","Control DNS for websites"], ans:1, exp:"Application Pools isolate web applications by running each in its own w3wp.exe worker process. If one app crashes, it doesn't affect others." },
+  { topic:"Windows Services", q:"What is the main function of FSRM (File Server Resource Manager)?", opts:["Manage Active Directory files","Set disk quotas, screen file types, and generate storage reports","Monitor network bandwidth","Backup file server data"], ans:1, exp:"FSRM provides quota management, file screening (block file types), classification, and storage reports to control and monitor file server usage." },
+  { topic:"Windows Services", q:"NPS (Network Policy Server) is Microsoft's implementation of which protocol?", opts:["TACACS+","RADIUS","LDAP","Kerberos"], ans:1, exp:"NPS is Microsoft's RADIUS server implementation. RADIUS provides centralized Authentication, Authorization, and Accounting (AAA) for network access." },
+  { topic:"Windows Services", q:"Which Hyper-V virtual switch type allows VMs to communicate with the physical network?", opts:["Private","Internal","External","Isolated"], ans:2, exp:"External virtual switch connects VMs to the physical network adapter, allowing communication with external hosts and the internet." },
+  { topic:"Windows Services", q:"What is the maximum disk size supported by VHDX format?", opts:["2 TB","4 TB","16 TB","64 TB"], ans:3, exp:"VHDX supports disks up to 64 TB, compared to VHD which is limited to 2 TB. VHDX also has better power failure resilience." },
+  { topic:"Windows Services", q:"Which RAID level uses striping with parity and requires a minimum of 3 disks?", opts:["RAID 0","RAID 1","RAID 5","RAID 10"], ans:2, exp:"RAID 5 uses distributed parity across all disks. Minimum 3 disks. Can survive the loss of 1 disk. Good balance of performance and redundancy." },
+  { topic:"Windows Services", q:"What PowerShell execution policy allows running locally created scripts but requires remote scripts to be signed?", opts:["Restricted","AllSigned","RemoteSigned","Unrestricted"], ans:2, exp:"RemoteSigned allows local scripts to run unsigned but requires scripts downloaded from the internet to be signed by a trusted publisher." },
+
+  { topic:"Linux Basics", q:"Which directory in the Linux FHS contains configuration files for all services?", opts:["/bin","/var","/etc","/lib"], ans:2, exp:"/etc contains all system-wide configuration files and directories. Key files: /etc/passwd, /etc/hosts, /etc/fstab, /etc/ssh/sshd_config." },
+  { topic:"Linux Basics", q:"What numeric permission value represents rwxr-xr-- ?", opts:["755","754","764","745"], ans:1, exp:"rwx=7, r-x=5, r--=4. So rwxr-xr-- = 754. Owner has full (7), group has read+execute (5), others have read only (4)." },
+  { topic:"Linux Basics", q:"Which special permission allows a file to execute with the permissions of its owner?", opts:["Sticky Bit","SGID","SUID","ACL"], ans:2, exp:"SUID (Set User ID) makes an executable run with the owner's permissions instead of the user's permissions. Example: /usr/bin/passwd uses SUID to write to /etc/shadow." },
+  { topic:"Linux Basics", q:"What does the sticky bit do when set on a directory like /tmp?", opts:["Files run as directory owner","Only file owner can delete their own files","Directory is hidden","All users get write access"], ans:1, exp:"The sticky bit on a directory means only the file owner, directory owner, or root can delete/rename files within it. Used on /tmp to prevent users deleting each other's files." },
+  { topic:"Linux Basics", q:"Which command sets an ACL to give user 'john' read-write-execute on a file?", opts:["chmod u:john:rwx file","setfacl -m u:john:rwx file","chown john:rwx file","getfacl -m u:john:rwx file"], ans:1, exp:"setfacl -m u:john:rwx file sets a POSIX ACL entry giving john rwx permissions. Use getfacl to view existing ACL entries." },
+
+  { topic:"Linux Boot & Install", q:"What is the correct Linux boot sequence order?", opts:["BIOS → Kernel → GRUB → initrd → systemd","BIOS → GRUB → Kernel → initrd → systemd","GRUB → BIOS → Kernel → systemd → initrd","BIOS → initrd → GRUB → Kernel → systemd"], ans:1, exp:"Boot order: BIOS/UEFI → MBR/GRUB (bootloader) → Kernel (vmlinuz) → initrd/initramfs (temp filesystem) → systemd (PID 1) → Login." },
+  { topic:"Linux Boot & Install", q:"Which file should you edit to change GRUB boot timeout and default settings?", opts:["/boot/grub2/grub.cfg","/etc/grub.conf","/etc/default/grub","/boot/grub/menu.lst"], ans:2, exp:"Edit /etc/default/grub to change settings like GRUB_TIMEOUT and GRUB_DEFAULT, then run grub2-mkconfig to regenerate /boot/grub2/grub.cfg." },
+  { topic:"Linux Boot & Install", q:"What is the Kickstart file used for in Linux?", opts:["Kernel module loading","Automated unattended OS installation","Disk encryption","Network bridge configuration"], ans:1, exp:"Kickstart allows completely automated Linux installation using a configuration file (ks.cfg) specifying language, packages, partitions, and post-install scripts." },
+  { topic:"Linux Boot & Install", q:"Which systemd target is equivalent to runlevel 3 (multi-user text mode)?", opts:["graphical.target","rescue.target","multi-user.target","poweroff.target"], ans:2, exp:"multi-user.target is equivalent to runlevel 3 – full multi-user mode without graphical interface. graphical.target = runlevel 5." },
+  { topic:"Linux Boot & Install", q:"Which package manager is used on Red Hat / CentOS 8+ systems?", opts:["apt","dpkg","yum","dnf"], ans:3, exp:"DNF (Dandified YUM) is the default package manager for RHEL 8+, Fedora, and CentOS 8+. YUM is used in older RHEL/CentOS 6/7. APT is for Debian/Ubuntu." },
+
+  { topic:"Linux Users & SSH", q:"Which file stores encrypted user passwords in Linux?", opts:["/etc/passwd","/etc/shadow","/etc/group","/etc/login.defs"], ans:1, exp:"/etc/shadow stores encrypted (hashed) passwords and is readable only by root. /etc/passwd contains user account info but 'x' where password used to be." },
+  { topic:"Linux Users & SSH", q:"Which sshd_config setting must be changed to prevent root from logging in via SSH?", opts:["AllowRoot no","DenyRoot yes","PermitRootLogin no","RootAccess denied"], ans:2, exp:"PermitRootLogin no in /etc/ssh/sshd_config prevents direct root SSH login. This is a critical security hardening step." },
+  { topic:"Linux Users & SSH", q:"What is the advantage of SSH key-based authentication over password authentication?", opts:["Faster connection","Not vulnerable to brute-force attacks; private key never leaves client","Works without a server","Requires no configuration"], ans:1, exp:"Key-based auth uses a cryptographic key pair. The private key never leaves the client machine, making brute-force and password interception attacks impossible." },
+  { topic:"Linux Users & SSH", q:"Which command adds a user to an existing group without removing them from other groups?", opts:["usermod -g group user","usermod -aG group user","groupadd -a user group","gpasswd group user"], ans:1, exp:"usermod -aG group user: -a flag appends (doesn't replace) and -G specifies the supplementary group. Without -a, the user would be removed from all other groups." },
+  { topic:"Linux Users & SSH", q:"What does the command 'chmod 4755 /usr/bin/program' do?", opts:["Sets SGID","Sets Sticky bit","Sets SUID with rwxr-xr-x permissions","Sets directory to read-only"], ans:2, exp:"4 sets SUID, 755 = rwxr-xr-x. So the program runs with owner's privileges. Used by binaries like passwd that need root access." },
+
+  { topic:"Linux Storage", q:"What is the correct LVM creation order?", opts:["VG → PV → LV → mkfs","PV → VG → LV → mkfs","LV → VG → PV → mkfs","mkfs → PV → VG → LV"], ans:1, exp:"LVM order: pvcreate (Physical Volume) → vgcreate (Volume Group) → lvcreate (Logical Volume) → mkfs (create filesystem). You build from physical to logical." },
+  { topic:"Linux Storage", q:"Which command extends a logical volume by 10GB?", opts:["vgextend -L +10G /dev/vg0/data","pvextend +10G /dev/vg0","lvextend -L +10G /dev/vg0/data","lvreset +10G /dev/vg0/data"], ans:2, exp:"lvextend -L +10G /dev/vg0/data adds 10GB to the LV. After extending, run resize2fs (ext4) or xfs_growfs (XFS) to expand the filesystem to use new space." },
+  { topic:"Linux Storage", q:"Which partitioning scheme supports disks larger than 2TB?", opts:["MBR","GPT","NTFS","FAT32"], ans:1, exp:"GPT (GUID Partition Table) supports disks over 2TB and up to 128 primary partitions. MBR is limited to 2TB and 4 primary partitions." },
+  { topic:"Linux Storage", q:"What is an LVM snapshot used for?", opts:["Duplicate a Volume Group","Point-in-time copy of an LV for backup or testing","Encrypt a Logical Volume","Merge two Physical Volumes"], ans:1, exp:"LVM snapshot creates a point-in-time copy of a logical volume. Used for consistent backups and testing. Changes go to the snapshot; original data is preserved." },
+
+  { topic:"Linux Services", q:"Which file defines NFS shares exported to clients?", opts:["/etc/nfs.conf","/etc/exports","/etc/samba/smb.conf","/etc/fstab"], ans:1, exp:"/etc/exports defines which directories are shared via NFS and the access permissions for each client/network. Run exportfs -r to re-read after changes." },
+  { topic:"Linux Services", q:"What is the main difference between FTP and SFTP?", opts:["SFTP is faster","FTP transfers encrypted; SFTP does not","SFTP runs over SSH and encrypts all data; FTP sends in plaintext","FTP uses port 22; SFTP uses port 21"], ans:2, exp:"SFTP (SSH File Transfer Protocol) uses SSH for encryption (port 22). FTP sends credentials and data in cleartext (ports 20/21). Always prefer SFTP." },
+  { topic:"Linux Services", q:"Which tool validates the Samba configuration file smb.conf?", opts:["smbcheck","testparm","smbverify","sambatest"], ans:1, exp:"testparm reads and validates smb.conf syntax, reporting errors and showing the effective configuration. Always run after editing smb.conf." },
+  { topic:"Linux Services", q:"Which Apache directive prevents listing of directory contents?", opts:["Options -Indexes","ServerTokens Prod","AllowOverride None","DirectoryListing Off"], ans:0, exp:"Options -Indexes disables directory listing. Without it, if no index file exists, Apache shows all files in the directory – a security risk." },
+  { topic:"Linux Services", q:"What port does IMAP use with SSL/TLS?", opts:["143","993","110","995"], ans:1, exp:"IMAP over SSL/TLS uses port 993 (IMAPS). Plain IMAP uses 143. POP3 uses 110, POP3S uses 995, SMTP uses 25, SMTP submission 587." },
+  { topic:"Linux Services", q:"What is the purpose of the Postfix 'mynetworks' directive?", opts:["Define which domains to deliver mail to","Define trusted networks allowed to relay mail through the server","Set the hostname of the mail server","Configure spam filtering rules"], ans:1, exp:"mynetworks in /etc/postfix/main.cf defines IP ranges trusted to relay mail. Only include your own subnets – open relays are exploited for spam." },
+
+  { topic:"Linux Security", q:"Which command shows all failed SSH login attempts from auth logs?", opts:["grep 'SSH fail' /var/log/syslog","grep 'Failed password' /var/log/auth.log","tail -f /var/log/ssh.log","cat /var/log/secure | SSH"], ans:1, exp:"grep 'Failed password' /var/log/auth.log shows all failed SSH password attempts. In RHEL/CentOS use /var/log/secure instead of auth.log." },
+  { topic:"Linux Security", q:"Which service provides centralized authentication for Linux similar to AD for Windows?", opts:["NFS","Samba","LDAP (OpenLDAP)","vsftpd"], ans:2, exp:"OpenLDAP implements the LDAP protocol for centralized directory services and authentication, similar to Active Directory's role in Windows environments." },
+  { topic:"Linux Security", q:"What is the /etc/hosts.deny file used for?", opts:["Deny DNS queries","Block IP addresses using TCP Wrappers","Deny user logins","Configure firewall rules"], ans:1, exp:"TCP Wrappers use /etc/hosts.deny (deny all by default) and /etc/hosts.allow (whitelist specific services/IPs). Example: hosts.deny: ALL: ALL" },
+  { topic:"Linux Security", q:"Why is NTP synchronization critical for Kerberos authentication?", opts:["NTP affects DNS resolution","Kerberos tickets have a 5-minute clock skew tolerance; time mismatch causes auth failure","NTP is required for LDAP queries","SSH key rotation depends on NTP"], ans:1, exp:"Kerberos authentication uses timestamps in tickets. If clock skew between client and KDC exceeds 5 minutes, authentication fails. NTP keeps all systems in sync." },
+
+  { topic:"BASH Scripting", q:"What is the correct syntax to declare a variable in bash?", opts:["var name = 'John'","$name = 'John'","name='John'","set name='John'"], ans:2, exp:"In bash, variables are assigned with no spaces around =: name='John'. Using $name references the variable. Spaces around = cause a syntax error." },
+  { topic:"BASH Scripting", q:"What does 'set -e' do at the top of a bash script?", opts:["Enables verbose output","Exits the script immediately if any command returns non-zero exit code","Sets environment variables","Enables debugging mode"], ans:1, exp:"set -e makes the script exit immediately upon any command failure. This prevents scripts from continuing after an error, which could cause worse problems." },
+  { topic:"BASH Scripting", q:"What does the special variable '$?' represent in bash?", opts:["Process ID of current script","Number of arguments passed","Exit code of the last command","Script filename"], ans:2, exp:"$? holds the exit code of the last executed command. 0 = success, non-zero = failure. Used to check if the previous command succeeded." },
+  { topic:"BASH Scripting", q:"Which cron expression runs a script every 5 minutes?", opts:["0 5 * * *","5 * * * *","*/5 * * * *","0 */5 * * *"], ans:2, exp:"*/5 * * * * runs every 5 minutes. */5 in the minute field means 'every 5 minutes'. 0 5 * * * would run at 5:00 AM daily." },
+  { topic:"BASH Scripting", q:"What does 2>&1 mean in bash redirection?", opts:["Redirect stdin to stderr","Redirect stderr to stdout","Redirect stdout to file descriptor 2","Run command twice"], ans:1, exp:"2>&1 redirects file descriptor 2 (stderr) to wherever file descriptor 1 (stdout) is going. Useful to capture both output streams together." },
+];
+
+const topics = ["All Topics", ...new Set(allQuestions.map(q => q.topic))];
+let currentTopic = "All Topics";
+let currentIdx = 0;
+let answered = {};
+let filteredQ = [];
+
+function getFiltered() {
+  return currentTopic === "All Topics" ? allQuestions : allQuestions.filter(q => q.topic === currentTopic);
+}
+
+function renderTabs() {
+  const container = document.getElementById("topic-tabs");
+  container.innerHTML = topics.map(t => `<button class="tab-btn${t===currentTopic?' active':''}" onclick="setTopic('${t}')">${t}</button>`).join('');
+}
+
+function setTopic(t) {
+  currentTopic = t;
+  currentIdx = 0;
+  answered = {};
+  filteredQ = getFiltered();
+  renderTabs();
+  renderQuestion();
+  updateProgress();
+}
+
+function renderQuestion() {
+  filteredQ = getFiltered();
+  const total = filteredQ.length;
+  if (total === 0) return;
+  const qa = filteredQ[currentIdx];
+  const isAnswered = answered[currentTopic + '_' + currentIdx] !== undefined;
+  const userAns = answered[currentTopic + '_' + currentIdx];
+
+  document.getElementById("nav-bar").style.display = "flex";
+  document.getElementById("q-counter").textContent = `${currentIdx+1} / ${total}`;
+  document.getElementById("score-display").textContent = `Score: ${getScore()} / ${Object.keys(answered).filter(k=>k.startsWith(currentTopic+'_')||currentTopic==='All Topics').length}`;
+
+  const optHtml = qa.opts.map((o, i) => {
+    let cls = 'opt-btn';
+    if (isAnswered) {
+      if (i === qa.ans) cls += ' reveal-correct';
+      else if (i === userAns) cls += ' wrong';
+    }
+    return `<button class="opt-btn ${isAnswered ? (i===qa.ans?'reveal-correct':(i===userAns?'wrong':'')) : ''}" ${isAnswered?'disabled':''} onclick="selectAnswer(${i})">
+      <span class="opt-label">${String.fromCharCode(65+i)}.</span>
+      <span>${o}</span>
+    </button>`;
+  }).join('');
+
+  document.getElementById("quiz-area").innerHTML = `
+    <div class="q-card">
+      <div class="q-tag">${qa.topic}</div>
+      <div class="q-number">Question ${currentIdx+1}</div>
+      <div class="q-text">${qa.q}</div>
+      <div class="options">${optHtml}</div>
+      <div class="explanation ${isAnswered?'show':''}" id="exp-box"><i class="ti ti-info-circle" aria-hidden="true"></i> ${qa.exp}</div>
+    </div>`;
+  document.getElementById("prev-btn").disabled = currentIdx === 0;
+}
+
+function selectAnswer(i) {
+  const qa = filteredQ[currentIdx];
+  const key = currentTopic + '_' + currentIdx;
+  if (answered[key] !== undefined) return;
+  answered[key] = i;
+  renderQuestion();
+  updateProgress();
+}
+
+function navigate(dir) {
+  filteredQ = getFiltered();
+  currentIdx = Math.max(0, Math.min(filteredQ.length-1, currentIdx + dir));
+  renderQuestion();
+}
+
+function getScore() {
+  filteredQ = getFiltered();
+  let score = 0;
+  filteredQ.forEach((q, i) => {
+    const key = currentTopic + '_' + i;
+    if (answered[key] === q.ans) score++;
+  });
+  return score;
+}
+
+function updateProgress() {
+  filteredQ = getFiltered();
+  const answeredCount = filteredQ.filter((_, i) => answered[currentTopic+'_'+i] !== undefined).length;
+  document.getElementById("progress").style.width = (answeredCount / filteredQ.length * 100) + '%';
+  document.getElementById("score-display").textContent = `Score: ${getScore()} / ${answeredCount} answered`;
+}
+
+setTopic("All Topics");
+</script>
